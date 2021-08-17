@@ -95,14 +95,12 @@ class InspectionParameters:
         try:
             _socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             _socket.bind((host, port))
-            # TODO - 포트검사하는 부분에서 사용중인 포트 때문에 에러나는지 확인 필요
         except Exception as e:
             raise Exception(f'지정한 IP와 포트번호를 사용할 수 없습니다. '
                             f'host:port={host}:{port}\n{str(e)}')
         else:
             self.device_type = self.config['device_type']
             self.host, self.port = host, port
-
         finally:
             _socket.close()
 
