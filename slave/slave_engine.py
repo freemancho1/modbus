@@ -41,9 +41,8 @@ class ModbusSlaveEngine:
         if not self._is_run:
             ThreadingTCPServer.address_family = socket.AF_INET6 if self.args.ipv6 else socket.AF_INET
             ThreadingTCPServer.daemon_threads = True
-            # TODO - BaseRequestHandler를 ModbusService로 변경
             self._service = ThreadingTCPServer((self.args.host, self.args.port),
-                                               BaseRequestHandler, bind_and_activate=False)
+                                               ModbusSlaveService, bind_and_activate=False)
             self._service.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self._service.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
             self._service.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
@@ -86,14 +85,17 @@ class ModbusSlaveService(BaseRequestHandler):
         while True:
             mbap_header = self.receve_all(CONST.MBAP_HEAD_SIZE)
             log.debug(f'수신된 MBAP_HEADER 데이터: {mbap_header}')
+            if mbap_header == b'':
+                log.info(f'데이터 요청 마스터 접속: 접속정보 - {self.client_address}')
+                break
             if not (mbap_header and len(mbap_header) == CONST.MBAP_HEAD_SIZE):
                 log.error(f'MBAP_HEADER 데이터 오류: 길이({len(mbap_header)}), 데이터({mbap_header})')
                 break
 
             (transaction_id, protocol_id, data_length, unit_id) = \
                 struct.unpack('>HHHB', mbap_header)
-            log.debug(f'수신된 MBAP_HEADER 데이터: '
-                      f'TRANSACTION ID({transaction_id}), PROTOCOL ID({protocol_id}), '
+            log.debug(f'변경된 MBAP_HEADER 데이터: '
+                      f'TRANSACTION ID({transaction_id:x}), PROTOCOL ID({protocol_id:x}), '
                       f'DATA LENGTH({data_length}), UNIT ID({unit_id})')
             if not ((protocol_id == 0) and (CONST.MIN_DATA_LEN < data_length < CONST.MAX_DATA_LEN)):
                 log.error(f'PROTOCOL ID 데이터 또는 DATA LENGTH 데이터 오류')
@@ -202,3 +204,63 @@ class ModbusSlaveService(BaseRequestHandler):
                 (bit_address, bit_count, byte_count) = struct.unpack('>HHB', receive_body[1:6])
                 log.debug(f'FC({function_code}), SOC({receive_body[1:6]}), '
                           f'bit_addr({bit_address}), bit_cnt({bit_count}), byte_cnt({byte_count})')
+                if (CONST.MIN_BIT_CNT <= bit_count <= CONST.MAX_BIT_0F_CNT) and \
+                    (byte_count >= (bit_count/8)):
+                    bits = [False] * bit_count
+                    for i, item in enumerate(bits):
+                        bit_pos = int(i/8) + 6
+                        bit_value = struct.unpack('B', receive_body[bit_pos:bit_pos+1])[0]
+                        bits[i] = DataMgt.test_bit(bit_value, i % 8)
+                    log.debug(f'bits size({len(bits)}), bits({bits})')
+                    if DataBank.set_bits(bit_address, bits):
+                        send_body = struct.pack('>BHH', function_code, bit_address, bit_count)
+                        log.debug(f'send_body({send_body})=p(">BHH", fc, b_addr, bi_cnt)')
+                    else:
+                        exp_status = CONST.EXP_DATA_ADDRESS
+                        log.error(f'{CONST.EXP_DETAILS[exp_status]}, '
+                                  f'b_addr({bit_address}), bits({bits})')
+                else:
+                    exp_status = CONST.EXP_DATA_VALUE
+                    log.error(f'{CONST.EXP_DETAILS[exp_status]}, '
+                              f'b_cnt({bit_count}), by_cnt({byte_count})')
+
+            # Function code: 0x10
+            elif function_code is CONST.WRITE_MULTIPLE_REGISTERS:
+                (word_address, word_count, byte_count) = struct.unpack('>HHB', receive_body[1:6])
+                log.debug(f'FC({function_code}), SOC({receive_body[1:6]}), '
+                          f'w_addr({word_address}), w_cnt({word_count}), b_cnt({byte_count})')
+                if (CONST.MIN_WORD_CNT <= word_count <= CONST.MAX_WORD_10_CNT) and \
+                    (byte_count == word_count * 2):
+                    word_list = [0] * word_count
+                    for i, item in enumerate(word_list):
+                        word_offset = i * 2 + 6
+                        word_list[i] = struct.unpack('>H', receive_body[word_offset:word_offset+2])[0]
+                    log.debug(f'word_list({word_list})')
+                    if DataBank.set_words(word_address, word_list):
+                        send_body = struct.pack('>BHH', function_code, word_address, word_count)
+                        log.debug(f'send_body({send_body})=p(">BHH", fc, w_addr, w_cnt)')
+                    else:
+                        exp_status = CONST.EXP_DATA_ADDRESS
+                        log.error(f'{CONST.EXP_DETAILS[exp_status]}, '
+                                  f'w_addr({word_address}), w_cnt({word_count})')
+                else:
+                    exp_status = CONST.EXP_DATA_VALUE
+                    log.error(f'{CONST.EXP_DETAILS[exp_status]}, '
+                              f'w_cnt({word_count}), b_cnt({byte_count})')
+
+            # 기능코드 에러 처리
+            else:
+                exp_status = CONST.EXP_ILLEGAL_FUNCTION
+                log.error(f'{CONST.EXP_DETAILS[exp_status]}, FC({function_code})')
+
+            # 디바이스 에러 처리(ADDRESS, VALUE)
+            if exp_status != CONST.EXP_NONE:
+                send_body = struct.pack('BB', function_code+0x80, exp_status)
+                log.error(f'에러 결과 메시지: send_body({send_body})=p("BB", fc+0x80, exp_status)')
+
+            send_header = struct.pack('>HHHB', transaction_id, protocol_id, len(send_body)+1, unit_id)
+            log.debug(f'send_header: "HHHB", tran_id, protc_id, len(send_body)+1, unit_id')
+            log.debug(f'send_header: {send_header}')
+            self.request.send(send_header+send_body)
+
+        self.request.close()
