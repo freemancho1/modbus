@@ -150,9 +150,55 @@ class ModbusSlaveService(BaseRequestHandler):
                     log.error(f'{CONST.EXP_DETAILS[exp_status]}, bit_count({bit_count})')
 
             # Function code: 0x03, 0x04
-            if function_code in (CONST.READ_HOLDING_REGISTERS, CONST.READ_INPUT_REGISTERS):
+            elif function_code in (CONST.READ_HOLDING_REGISTERS, CONST.READ_INPUT_REGISTERS):
                 (word_address, word_count) = struct.unpack('>HH', receive_body[1:])
                 log.debug(f'FC({function_code}), SOC({receive_body[1:]}), '
                           f'word_address({word_address}), word_count({word_count})')
                 if CONST.MIN_WORD_CNT <= word_count <= CONST.MAX_WORD_CNT: # MAX 125(0x7D)
                     words = DataBank.get_words(word_address, word_count)
+                    log.debug(f'(word_address, word_count) => words({words})')
+                    if words:
+                        send_body = struct.pack('BB', function_code, word_count*2)
+                        for word in words:
+                            send_body += struct.pack('>H', word)
+                        log.debug(f'send_body({send_body})=pack("BB",fc,wc*2)+pack("H",bytes)')
+                    else:
+                        exp_status = CONST.EXP_DATA_ADDRESS
+                        log.error(f'{CONST.EXP_DETAILS[exp_status]}, address({word_address})')
+                else:
+                    exp_status = CONST.EXP_DATA_VALUE
+                    log.error(f'{CONST.EXP_DETAILS[exp_status]}, word_count({word_count})')
+
+            # Function code: 0x05
+            elif function_code is CONST.WRITE_SINGLE_COIL:
+                (bit_address, bit_value) = struct.unpack('>HH', receive_body[1:])
+                log.debug(f'FC({function_code}), SOC({receive_body[1:]}), '
+                          f'bit_address({bit_address}), bit_value({bit_value})')
+                _bit_value = bool(bit_value == 0xFF00)
+                log.debug(f'_bit_value({_bit_value})=bool(bit_value==0xFF00)')
+                if DataBank.set_bits(bit_address, [_bit_value]):
+                    send_body = struct.pack('>BHH', function_code, bit_address, bit_value)
+                    log.debug(f'send_body({send_body})=(">BHH", fc, bit_address, bit_value)')
+                else:
+                    exp_status = CONST.EXP_DATA_ADDRESS
+                    log.error(f'{CONST.EXP_DETAILS[exp_status]}, '
+                              f'bit_address({bit_address}), bit_value({bit_value})')
+
+            # Function code: 0x06
+            elif function_code is CONST.WRITE_SINGLE_REGISTER:
+                (word_address, word_value) = struct.unpack('>HH', receive_body[1:])
+                log.debug(f'FC({function_code}), SOC({receive_body[1:]}), '
+                          f'word_address({word_address}), word_value({word_value})')
+                if DataBank.set_words(word_address, [word_value]):
+                    send_body = struct.pack('>BHH', function_code, word_address, word_value)
+                    log.debug(f'send_body({send_body})=(">BHH", fc, w_addr, w_val)')
+                else:
+                    exp_status = CONST.EXP_DATA_ADDRESS
+                    log.error(f'{CONST.EXP_DETAILS[exp_status]}, '
+                              f'word_address({word_address}), word_value({word_value})')
+
+            # Function code: 0x0F
+            elif function_code is CONST.WRITE_MULTIPLE_COILS:
+                (bit_address, bit_count, byte_count) = struct.unpack('>HHB', receive_body[1:6])
+                log.debug(f'FC({function_code}), SOC({receive_body[1:6]}), '
+                          f'bit_addr({bit_address}), bit_cnt({bit_count}), byte_cnt({byte_count})')
