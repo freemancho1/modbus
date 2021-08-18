@@ -3,11 +3,9 @@ from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 client = ModbusClient('localhost', port=5020)
 
 if client.connect():
+    print('통신을 시작합니다.')
     _ = input()
 
-    result = client.write_coil(address=0, value=10)
-    print(result)
-    _ = input()
-
-
-    client.close()
+    print('read_discrete_inputs(0, 4)')
+    r = client.read_discrete_inputs(6, 4)
+    print(r.bits)

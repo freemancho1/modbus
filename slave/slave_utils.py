@@ -4,44 +4,41 @@ from threading import Lock
 
 class DataBank:
 
-    bits_lock = Lock()
-    bits = [False] * 0x10000
-    words_lock = Lock()
-    words = [0] * 0x10000
+    def __init__(self):
+        self.bits_lock = Lock()
+        self.bits = [False] * 0x20000   # 0x0(Coils), 0x1(Discrete Inputs)
+        self.words_lock = Lock()
+        self.words = [0] * 0x20000      # 0x0(Input Register), 0x1(Holding Register)
 
-    @classmethod
-    def get_bits(cls, address, number=1):
-        with cls.bits_lock:
-            if (address >= 0) and (address + number <= len(cls.bits)):
-                return cls.bits[address:address+number]
+    def get_bits(self, address, number=1):
+        with self.bits_lock:
+            if (address >= 0) and (address + number <= len(self.bits)):
+                return self.bits[address:address+number]
             else:
                 return None
 
-    @classmethod
-    def set_bits(cls, address, bit_list):
+    def set_bits(self, address, bit_list):
         result = None
         bit_list = [bool(b) for b in bit_list]
-        with cls.bits_lock:
-            if (address >= 0) and (address+len(bit_list) <= len(cls.bits)):
-                cls.bits[address:address+len(bit_list)] = bit_list
+        with self.bits_lock:
+            if (address >= 0) and (address+len(bit_list) <= len(self.bits)):
+                self.bits[address:address+len(bit_list)] = bit_list
                 result = True
         return result
 
-    @classmethod
-    def get_words(cls, address, number=1):
-        with cls.words_lock:
-            if (address >= 0) and (address+number <= len(cls.words)):
-                return cls.words[address:address+number]
+    def get_words(self, address, number=1):
+        with self.words_lock:
+            if (address >= 0) and (address+number <= len(self.words)):
+                return self.words[address:address+number]
             else:
                 return None
 
-    @classmethod
-    def set_words(cls, address, word_list):
+    def set_words(self, address, word_list):
         result = None
         word_list = [int(w) & 0xffff for w in word_list]
-        with cls.words_lock:
-            if (address >= 0) and (address+len(word_list) <= len(cls.words)):
-                cls.words[address:address+len(word_list)] = word_list
+        with self.words_lock:
+            if (address >= 0) and (address+len(word_list) <= len(self.words)):
+                self.words[address:address+len(word_list)] = word_list
                 result = True
         return result
 

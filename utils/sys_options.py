@@ -47,6 +47,7 @@ class InspectionParameters:
         self.device_type = ''
         self.host = ''
         self.port = 0
+        self.unit_count = 1
         self.device_info = ''
         self.log_level = LOG_CONF.DEFAULT_LEVEL
         self.display_log = LOG_CONF.DEFAULT_DISPLAY
@@ -100,7 +101,7 @@ class InspectionParameters:
                             f'host:port={host}:{port}\n{str(e)}')
         else:
             self.device_type = self.config['device_type']
-            self.host, self.port = host, port
+            self.host, self.port, self.unit_count = host, port, self.config['server']['unit_count']
         finally:
             _socket.close()
 
