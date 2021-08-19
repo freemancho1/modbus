@@ -6,9 +6,9 @@ class DataBank:
 
     def __init__(self):
         self.bits_lock = Lock()
-        self.bits = [False] * 0x20000   # 0x0(Coils), 0x1(Discrete Inputs)
+        self.bits = [False] * 20000   # 00000~09999(Coils), 10000~19999(Discrete Inputs)
         self.words_lock = Lock()
-        self.words = [0] * 0x20000      # 0x0(Input Register), 0x1(Holding Register)
+        self.words = [0] * 20000      # 00000~09999(Input Register), 10000~19999(Holding Register)
 
     def get_bits(self, address, number=1):
         with self.bits_lock:

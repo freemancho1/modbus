@@ -7,5 +7,5 @@ if client.connect():
     _ = input()
 
     print('read_discrete_inputs(0, 4)')
-    r = client.read_discrete_inputs(6, 4)
+    r = client.read_discrete_inputs(0, 9, unit=1)
     print(r.bits)

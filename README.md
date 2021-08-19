@@ -7,7 +7,7 @@
 ### STEP 1 - 소스코드에 실행할 인터프리터 추가
 ###### 최상단에 아래 코드를 추가한다.
 ###### 추가할 내용: 해당 프로그램이 수행될 가상환경의 python 실행파일
-```python
+```text
 #!/home/freeman/anaconda3/envs/modbus/bin/python
 import os, sys
 ...
@@ -18,9 +18,9 @@ $ cd ~/projects/modbus/utils/logs
 $ chmod +x logviewer.py
 ```
 ### STEP 3 - $PATH의 경로중 적당한 경로를 골라 링크 생성
-###### 여기서는 ~/.local/bin 경로를 선택함
+###### 여기서는 /usr/local/bin 경로를 선택함
 ```text
-$ ln -s ~/projects/modbus/utils/logs/logviewer.py ~/.local/bin/logviewer
+$ sudo ln -s ~/projects/modbus/utils/logs/logviewer.py /usr/local/bin/logviewer
 ```
 ###### 이렇게 하면 아무곳에서나 logviewer를 실행할 수 있음.
 

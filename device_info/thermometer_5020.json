@@ -3,6 +3,22 @@
   "server": {
     "host": "127.0.0.1",
     "port": 5020,
-    "unit_count": 10
+    "unit_count": 1
+  },
+  "coil": {
+    "start_addr": 0,
+    "end_addr": 9999
+  },
+  "discrete_input": {
+    "start_addr": 10000,
+    "end_addr": 19999
+  },
+  "input_register": {
+    "start_addr": 20000,
+    "end_addr": 29999
+  },
+  "holding_register": {
+    "start_addr": 30000,
+    "end_addr": 39999
   }
 }
