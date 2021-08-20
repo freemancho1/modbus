@@ -1,5 +1,6 @@
 {
   "device_type": "thermometer",
+  "device_driver": "slave.drivers.led_timer",
   "server": {
     "host": "127.0.0.1",
     "port": 5020,

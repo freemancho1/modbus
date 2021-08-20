@@ -1,6 +1,5 @@
 #!/home/freeman/anaconda3/envs/modbus/bin/python
 import os, sys
-# sys.path.append(os.path.abspath(__file__+'/../..'))
 sys.path.append(os.path.abspath(
     os.path.join(os.path.expanduser('~'), 'projects/modbus')))
 

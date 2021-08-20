@@ -49,6 +49,7 @@ class InspectionParameters:
         self.port = 0
         self.unit_count = 1
         self.device_info = ''
+        self.device_driver = ''
         self.log_level = LOG_CONF.DEFAULT_LEVEL
         self.display_log = LOG_CONF.DEFAULT_DISPLAY
         self.no_block = False
@@ -86,6 +87,7 @@ class InspectionParameters:
                 self.config = json.load(device_info_file)
                 self._inspect_config()
                 self.device_info = device_info
+                self.device_driver = self.config['device_driver']
         except Exception as e:
             raise Exception(f'설정파일을 처리하는 과정에서 에러가 발생했습니다. '
                             f'파일명: {device_info}\n{str(e)}')
