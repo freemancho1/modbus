@@ -1,11 +1,5 @@
 {
-  "device_type": "thermometer",
-  "device_driver": "slave.drivers.led_timer",
-  "server": {
-    "host": "127.0.0.1",
-    "port": 5020,
-    "unit_count": 1
-  },
+  "device_driver": "thermometer",
   "coil": {
     "start_addr": 0,
     "end_addr": 9999

@@ -1,0 +1,77 @@
+{
+  "device_driver": "led_timer",
+  "generation_interval": 1,
+  "coil": {
+    "start_addr": 0,
+    "end_addr": 9999,
+    "data": [
+      {
+        "name": "color",
+        "addr": 15,
+        "default": [1,0,0]
+      }
+    ]
+  },
+  "discrete_input": {
+    "start_addr": 10000,
+    "end_addr": 19999,
+    "data": [
+      {
+        "name": "status",
+        "addr": 10011,
+        "default": 1,
+        "interval": 10
+      },
+      {
+        "name": "color",
+        "addr": 10015,
+        "default": [1,0,0]
+      }
+    ]
+  },
+  "input_register": {
+    "start_addr": 30000,
+    "end_addr": 39999,
+    "data": [
+      {
+        "name": "curr_time",
+        "addr": 30100,
+        "default": [12,0,0],
+        "interval": 1,
+        "type": "time",
+        "min": [1,0,0],
+        "max": [24,59,59],
+        "error_rate": 10
+      },
+      {
+        "name": "chg_time",
+        "addr": 30200,
+        "default": [12,0,0],
+        "type": "time"
+      },
+      {
+        "name": "input_voltage",
+        "addr": 30900,
+        "default": 10,
+        "interval": 2,
+        "min": 5,
+        "max": 15,
+        "error_rate": 10
+      }
+    ]
+  },
+  "holding_register": {
+    "start_addr": 40000,
+    "end_addr": 49999,
+    "data": [
+      {
+        "name": "set_time",
+        "addr": 40100,
+        "default": [12,0,0],
+        "type": "time",
+        "min": [1,0,0],
+        "max": [24,59,59]
+      }
+    ]
+  }
+}

@@ -10,8 +10,9 @@ from slave_engine import ModbusSlaveEngine
 try:
     sys_params = InspectionParameters()
     if not sys_params.display_log:
-        print(f'{sys_params.host}:{sys_params.port} '
-              f'[{sys_params.device_type}] 디바이스 실행중....')
+        print(f'device={sys_params.device_info["type"]}, '
+              f'host={sys_params.device_info["host"]}, port={sys_params.device_info["port"]}, '
+              f'unit={sys_params.device_info["unit_count"]} 디바이스 실행중....')
 except Exception as e:
     print(f'에러: {str(e)}')
     sys.exit()

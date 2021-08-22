@@ -1,43 +1,62 @@
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
+from datetime import datetime
 
-client = ModbusClient('localhost', port=5020)
+client = ModbusClient('localhost', port=5021)
 
 if client.connect():
-    print('통신을 시작합니다.')
-    _ = input()
 
-    print('write_coil(0, True)')
-    result = client.write_coil(address=0, value=True, unit=0)
-    _ = input()
+    # # addr, value, unit = 100, False, 1   # 값이 0,1이 아닌 5를 넣은 경우 테스트(0/False 아니면 모두 True)
+    # addr, value, unit = 15, 1, 1
+    # print(f'write_coil(addr={addr}, value={value}, unit={unit})')
+    # s = datetime.now()
+    # r1 = client.write_coil(address=addr, value=value, unit=unit)
+    # print(f'processing time: {datetime.now()-s}')
+    # _ = input()
 
-    print('read_coils(0, 1)')
-    result = client.read_coils(address=0, count=1)
-    print(result.bits[0])
-    _ = input()
+    # addr, value, unit = 17, 1, 1
+    # print(f'write_coil(addr={addr}, value={value}, unit={unit})')
+    # s = datetime.now()
+    # r2 = client.write_coil(address=addr, value=value, unit=unit)
+    # print(f'processing time: {datetime.now()-s}')
+    # _ = input()
 
-    print('write_coil(0, False)')
-    result = client.write_coil(address=0, value=0, unit=0)
-    _ = input()
+    # addr, count, unit = 15, 3, 1
+    # print(f'read_coils(addr={addr}, count={count}, unit={unit})')
+    # s = datetime.now()
+    # r3 = client.read_coils(address=addr, count=count, unit=unit)
+    # print(f'processing time: {datetime.now() - s}')
+    # print(r3.bits)
+    # _ = input()
+    #
+    # addr, value, unit = 102, False, 1
+    # print(f'write_coil(addr={addr}, value={value}, unit={unit})')
+    # s = datetime.now()
+    # r4 = client.write_coil(address=addr, value=value, unit=unit)
+    # print(f'processing time: {datetime.now()-s}')
+    # addr, count, unit = 100, 5, 1
+    # print(f'read_coils(addr={addr}, count={count}, unit={unit})')
+    # r5 = client.read_coils(address=addr, count=count, unit=unit)
+    # print(r5.bits)
+    # _ = input()
 
-    print('read_coils(0, count=1)')
-    result = client.read_coils(address=0, count=1, unit=0)
-    print(result.bits[0])
-    _ = input()
+    addr, values, unit = 15, [1,1,1], 1
+    print(f'write_coils(addr={addr}, values={values}, unit={unit})')
+    r6 = client.write_coils(address=addr, values=values, unit=unit)
 
-    print('write_coils(1, [True]*8)')
-    result = client.write_coils(address=0, values=[True]*8)
-    _ = input()
+    addr, count, unit = 15, 3, 1
+    print(f'read_coils(addr={addr}, count={count}, unit={unit})')
+    r7 = client.read_coils(address=addr, count=count, unit=unit)
+    print(r7.bits)
 
-    print('read_coils(1, 21)')
-    result = client.read_coils(address=0, count=21)
-    print(result.bits)
-    _ = input()
-
-    print('write_coils(1, [1,1,0,0], unit=1)')
-    result = client.write_coils(address=1, values=[1,1,0,0], unit=1)
-
-    print('read_coils(0, 21, unit=1)')
-    result = client.read_coils(address=0, count=21, unit=1)
-    print(result.bits)
+    # addr, values, unit = 103, [0,1,1,0], 1
+    # print(f'write_coils(addr={addr}, values={values}, unit={unit})')
+    # r8 = client.write_coils(address=addr, values=values, unit=unit)
+    # _ = input()
+    #
+    # addr, count, unit = 100, 10, 1
+    # print(f'read_coils(addr={addr}, count={count}, unit={unit})')
+    # r9 = client.read_coils(address=addr, count=count, unit=unit)
+    # print(r9.bits)
+    # _ = input()
 
     client.close()

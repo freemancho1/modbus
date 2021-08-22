@@ -1,38 +1,31 @@
+from datetime import datetime
 from pymodbus.client.sync import ModbusTcpClient as ModbusClient
 
-client = ModbusClient('localhost', port=5020)
+client = ModbusClient('localhost', port=5021)
 
 if client.connect():
-    print('통신을 시작합니다.')
-    _ = input()
 
-    address, value, count, unit = 0, 11, 1, 1
+    # address, value, unit = 40100, 1234, 1
+    # print(f'write_register(address={address}, value={value}, unit={unit})')
+    # s = datetime.now()
+    # r = client.write_register(address=address, value=value, unit=unit)
+    # print(f'processing time: {datetime.now()-s}')
+    # print(r)
+    # _ = input()
+    #
+    # address, value, unit = 40102, [2321, 3333, 4028, 7789], 1
+    # print(f'write_registers(address={address}, values={value}, unit={unit})')
+    # s = datetime.now()
+    # r = client.write_registers(address=address, values=value, unit=unit)
+    # print(f'processing time: {datetime.now()-s}')
+    # print(r)
+    # _ = input()
 
-    print(f'write_register(address={address}, value={value}, unit={unit})')
-    r = client.write_register(address=address, value=value, unit=unit)
-    print(r)
-    _ = input()
-
-    print(f'read_holding_registers(address={address}, count={count}) # unit=0')
-    r = client.read_holding_registers(address, count=count)   # unit=0
-    print(f'get data size({len(r.registers)}), data={r.registers}')
-    _ = input()
-
-    print(f'read_holding_registers(address={address}, count={count}, unit={unit})')
-    r = client.read_holding_registers(address, count=count, unit=unit)
-    print(f'get data size({len(r.registers)}), data={r.registers}')
-    _ = input()
-
-    print('Read/Write Multi Holding Register Sample')
-    address, values, count, unit = 0x000A, [10, 20, 30, 40], 4, 5
-
-    print(f'write_registers(address={address}, values={values}, unit={unit})')
-    r = client.write_registers(address=address, values=values, unit=unit)
-    print(r)
-    _ = input()
-
-    print(f'read_holding_registers(address={address}, count={count}, unit={unit})')
+    address, count, unit = 40100, 3, 1
+    print(f'client.read_holding_registers(address={address}, count={count}, unit={unit})')
+    s = datetime.now()
     r = client.read_holding_registers(address=address, count=count, unit=unit)
+    print(f'processing time: {datetime.now()-s}')
     print(f'get data size({len(r.registers)}), data={r.registers}')
 
     client.close()
