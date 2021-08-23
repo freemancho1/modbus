@@ -18,10 +18,6 @@ class InputParameters:
                                 default=LOG_CONF.DEFAULT_LEVEL, type=str,
                                 help=f'''로그 출력 레벨을 설정한다. 기본값은 '{LOG_CONF.DEFAULT_LEVEL}'이다.
                                      debug, info, warning, error, critical을 사용할 수 있다.''')
-        self._parser.add_option('-D', '--no-display-log', dest='display_log',
-                                action='store_false', default=LOG_CONF.DEFAULT_DISPLAY,
-                                help=f'''화면에 로그 출력 여부를 설정한다. 기본값은 '{LOG_CONF.DEFAULT_DISPLAY}'이다.
-                                     (이 설정은 로그의 화면 출력 여부만 설정하며, 로그파일에 영향을 주지 않는다.)''')
         (self._options, self._args) = self._parser.parse_args()
 
     def get_options(self):
@@ -47,7 +43,6 @@ class InspectionParameters:
         try:
             self._inspect_device_info()
             self._inspect_log_level()
-            self._inspect_etc()
         except Exception as e:
             raise Exception(str(e))
 
@@ -128,6 +123,3 @@ class InspectionParameters:
         else:
             raise Exception(f'표시할 로그레벨 설정값을 잘못 입력했습니다. '
                             f'입력한 로그레벨: {log_level}')
-
-    def _inspect_etc(self):
-        self.display_log = self.soc_options.display_log

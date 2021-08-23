@@ -16,7 +16,8 @@ class ModbusSlaveEngine:
         self.device_info = args.device_info
         self.product_info = args.product_info
         self.log_level = args.log_level
-        self.display_log = args.display_log
+        # self.display_log = args.display_log
+        self.display_log = False
         self._running = False
         self._service = None
         self._service_thread = None

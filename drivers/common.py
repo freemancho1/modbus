@@ -40,6 +40,7 @@ class CommonDriver:
 
         self._init_device()
 
+        # self.product_info['generation_interval'] = 100
         gd_process = GenerationData(self.device_generation_data,
                                     self.product_info['generation_interval'])
         gd_process.daemon = True
@@ -438,10 +439,13 @@ class CommonDriver:
 
     def _gen_words_default(self, data, uid):
         min_val, max_val = data.get('min'), data.get('max')
-        word = randint(min_val, max_val)
-        if random() > (100-data['error_rate'])/100.:
-            word += max_val
-        self.DataBank[uid].set_words(data['addr']-self.ws_addr, [word])
+        def_val = data.get('default')
+        loop_cnt = 1 if isinstance(def_val, int) else len(def_val)
+        for i in range(loop_cnt):
+            word = randint(min_val, max_val)
+            if random() > (100-data['error_rate'])/100.:
+                word += max_val
+            self.DataBank[uid].set_words(data['addr']+i-self.ws_addr, [word])
 
     def _gen_words(self, data, uid):
         data_type = data.get('type', '')

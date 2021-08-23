@@ -1,5 +1,6 @@
 #!/home/freeman/anaconda3/envs/modbus/bin/python
 import os
+import re
 import sys
 import json
 import socket
@@ -65,20 +66,91 @@ def input_parameters():
         raise Exception(f'설정파일을 처리하는 동안 에러가 발생했습니다.\n{str(e)}')
 
 def help_msg():
-    print('** Usage: [1:read/2:write], [count(s)/value(s)], unit-id, \n'
-          ' - ex1) 1, 10, 0 => read, count=10, unit-id=0 \n'
-          ' - ex2) 2, 20, 1 => write, value=20, unit-id=1 \n'
-          ' - ex3) 2, [10, 20, 30], 2 => write, values=[10,20,30], unit-id=2')
+    print('** Usage: [1:read/2:write], [count/value(s)], unit-id, \n'
+          ' - ex1) 1, 10, 0            => read, count=10, unit-id=0 \n'
+          ' - ex2) 2, 20, 1            => write, value=20, unit-id=1 \n'
+          ' - ex3) 2, [10, 20, 30], 2  => write, values=[10,20,30], unit-id=2 \n'
+          ' - ex4) 2, [True]*3         => write, values=[True, True, True], unit-id=0')
 
 def master_service():
 
+    client = ModbusTcpClient(dev_info['host'], dev_info['port'])
+    call_func = [
+        [client.read_coils, client.read_discrete_inputs,
+         client.read_holding_registers, client.read_input_registers],
+        [client.write_coil, client.write_register,
+         client.write_coils, client.write_registers]
+    ]
+
     while True:
         send_stat = {}
-        in_data = input('input data(exit=\'ctrl+c\'): ')
+
+        in_data = input('Exit=\'Ctrl+C\', Help=\'H\'] Input Data: ')
+
         if len(in_data) == 0: continue
+        if in_data[:1] not in ['1', '2']:
+            help_msg()
+            continue
 
-        help_msg()
+        in_data = in_data.replace('True', '1').replace('False', '0')
 
+        send_stat['type'] = int(in_data[:1])
+
+        try:
+            if '[' in in_data and ']' in in_data:
+                tmp_val = re.findall('\[([\w\,\d ]+)\]', in_data)[0]
+                tmp_lst = [int(i) for i in tmp_val.split(',')]
+                tmp_cnt = re.findall('\] *\* *([\d]+)', in_data)
+                count = int(tmp_cnt[0]) if len(tmp_cnt) > 0 else 1
+                send_stat['value'] = tmp_lst * count
+                in_data = in_data.replace(f'[{tmp_val}]','')
+                tmp_val = in_data.split(',')
+            elif '[' in in_data or ']' in in_data: raise
+            else:
+                tmp_val = in_data.split(',')
+                send_stat['value'] = int(tmp_val[2])
+            if len(tmp_val) > 4: raise
+            send_stat['addr'] = int(tmp_val[1])
+            send_stat['uid'] = int(tmp_val[3]) if len(tmp_val) == 4 else 0
+        except:
+            print(f'Input data error. data: {in_data}')
+            continue
+
+        if dev_info['co']['start_addr'] <= send_stat['addr'] <= dev_info['co']['end_addr']:
+            reg_type = 0
+        elif dev_info['di']['start_addr'] <= send_stat['addr'] <= dev_info['di']['end_addr']:
+            reg_type = 1
+        elif dev_info['ir']['start_addr'] <= send_stat['addr'] <= dev_info['ir']['end_addr']:
+            reg_type = 3
+        elif dev_info['hr']['start_addr'] <= send_stat['addr'] <= dev_info['hr']['end_addr']:
+            reg_type = 2
+        else:
+            print(f'Input address error. address: {send_stat["addr"]}')
+            continue
+
+        if send_stat['type'] == 2:
+            if reg_type < 2:
+                _reg_type = 0 if isinstance(send_stat['value'], int) else 2
+            else:
+                _reg_type = 1 if isinstance(send_stat['value'], int) else 3
+            reg_type = _reg_type
+
+        if send_stat['type'] == 1:
+            r = call_func[0][reg_type](address=send_stat['addr'],
+                                       count=send_stat['value'],
+                                       unit=send_stat['uid'])
+            print(r.bits if reg_type < 2 else r.registers)
+        else:
+            if reg_type < 2:
+                r = call_func[1][reg_type](address=send_stat['addr'],
+                                           value=send_stat['value'],
+                                           unit=send_stat['uid'])
+            else:
+                r = call_func[1][reg_type](address=send_stat['addr'],
+                                           values=send_stat['value'],
+                                           unit=send_stat['uid'])
+            print(r)
+        print()
 
 
 
@@ -88,6 +160,7 @@ if __name__ == '__main__':
         input_parameters()
     except Exception as er:
         print(f'에러: {str(er)}')
+        sys.exit()
 
     try:
         master_service()
