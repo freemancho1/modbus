@@ -1,3 +1,4 @@
+import os
 import time
 import struct
 import threading
@@ -452,6 +453,55 @@ class CommonDriver:
             else:
                 pass
 
+    def _show_console(self):
+        cmd = 'cls' if os.name in ('nt', 'dos') else 'clear'
+        os.system(cmd)
+
+        print('MODBUS SIMULATOR.\n\n')
+        print(f'{self.device_info["type"].upper()} - '
+              f'{self.device_info["host"]}:{self.device_info["port"]}\n')
+
+        disp_title = ['coils', 'discrete inputs', 'input registers', 'holding registers']
+        proc_regs = [self.co, self.di, self.ir, self.hr]
+        for regs_idx in range(len(proc_regs)):
+
+            disp_msg = [disp_title[regs_idx].upper()]
+            temp_msg = f'{"addr": >8} '
+            for uid in range(self.device_info['unit_count']):
+                _msg = f'uid={uid}'
+                temp_msg += f'{_msg: >8} '
+            disp_msg.append(temp_msg)
+
+            for data_idx in range(len(proc_regs[regs_idx])):
+                data = proc_regs[regs_idx][data_idx]
+                addr = data['addr']
+                def_val = data['default']
+
+                if isinstance(def_val, int):
+                    temp_msg = ''
+                    for uid in range(self.device_info['unit_count']):
+                        if regs_idx < 2:
+                            value = self.DataBank[uid].get_bits(addr)[0]
+                        else:
+                            value = self.DataBank[uid].get_words(addr-self.ws_addr)[0]
+                        temp_msg += f'{addr: >8} {value: >8} ' if uid == 0 else f'{value: >8} '
+                    disp_msg.append(temp_msg)
+                else:
+                    temp_addr = addr
+                    for _ in range(len(def_val)):
+                        temp_msg = ''
+                        for uid in range(self.device_info['unit_count']):
+                            if regs_idx < 2:
+                                value = self.DataBank[uid].get_bits(temp_addr)[0]
+                            else:
+                                value = self.DataBank[uid].get_words(temp_addr-self.ws_addr)[0]
+                            temp_msg += f'{temp_addr: >8} {value: >8} ' if uid == 0 else f'{value: >8} '
+                        disp_msg.append(temp_msg)
+                        temp_addr += 1
+
+            for msg in disp_msg:
+                print(msg)
+            print()
 
     def device_generation_data(self):
 
@@ -485,6 +535,8 @@ class CommonDriver:
             diff_time = curr_time - v
             if diff_time.seconds >= k:
                 self.timer[k] = curr_time
+
+        self._show_console()
 
         # self.log.debug(f'processing time: {datetime.now()-curr_time}')
 
