@@ -57,10 +57,12 @@ def input_parameters():
         with open(pdt_info_file_full_path, encoding='utf-8') as pif:
             tmp_pdt_info = json.load(pif)
 
-        dev_info['co'] = tmp_pdt_info['coil']
-        dev_info['di'] = tmp_pdt_info['discrete_input']
-        dev_info['ir'] = tmp_pdt_info['input_register']
-        dev_info['hr'] = tmp_pdt_info['holding_register']
+        dev_info['addr'] = [
+            [tmp_pdt_info['coil']['start_addr'], tmp_pdt_info['coil']['end_addr']],
+            [tmp_pdt_info['discrete_input']['start_addr'], tmp_pdt_info['discrete_input']['end_addr']],
+            [tmp_pdt_info['holding_register']['start_addr'], tmp_pdt_info['holding_register']['end_addr']],
+            [tmp_pdt_info['input_register']['start_addr'], tmp_pdt_info['input_register']['end_addr']]
+        ]
 
     except Exception as e:
         raise Exception(f'설정파일을 처리하는 동안 에러가 발생했습니다.\n{str(e)}')
@@ -105,28 +107,24 @@ def master_service():
                 send_stat['value'] = tmp_lst * count
                 in_data = in_data.replace(f'[{tmp_val}]','')
                 tmp_val = in_data.split(',')
-            elif '[' in in_data or ']' in in_data: raise
+            elif '[' in in_data or ']' in in_data: raise Exception('대괄호가 한쪽이 없습니다.')
             else:
                 tmp_val = in_data.split(',')
                 send_stat['value'] = int(tmp_val[2])
-            if len(tmp_val) > 4: raise
+            if len(tmp_val) > 4: raise Exception('입력 데이터의 갯 수가 초과되었습니다.')
             send_stat['addr'] = int(tmp_val[1])
             send_stat['uid'] = int(tmp_val[3]) if len(tmp_val) == 4 else 0
-        except:
-            print(f'Input data error. data: {in_data}')
+        except Exception as e:
+            print(f'Input data error. data: {in_data} => {e}')
             continue
 
-        if dev_info['co']['start_addr'] <= send_stat['addr'] <= dev_info['co']['end_addr']:
-            reg_type = 0
-        elif dev_info['di']['start_addr'] <= send_stat['addr'] <= dev_info['di']['end_addr']:
-            reg_type = 1
-        elif dev_info['ir']['start_addr'] <= send_stat['addr'] <= dev_info['ir']['end_addr']:
-            reg_type = 3
-        elif dev_info['hr']['start_addr'] <= send_stat['addr'] <= dev_info['hr']['end_addr']:
-            reg_type = 2
-        else:
+        reg_type = [i for i in range(len(dev_info['addr']))
+                    if dev_info['addr'][i][0] <= send_stat['addr'] <= dev_info['addr'][i][1]]
+        if len(reg_type) == 0:
             print(f'Input address error. address: {send_stat["addr"]}')
             continue
+        else:
+            reg_type = reg_type[0]
 
         if send_stat['type'] == 2:
             if reg_type < 2:
@@ -135,11 +133,14 @@ def master_service():
                 _reg_type = 1 if isinstance(send_stat['value'], int) else 3
             reg_type = _reg_type
 
+        s = datetime.now()
+
         if send_stat['type'] == 1:
             r = call_func[0][reg_type](address=send_stat['addr'],
                                        count=send_stat['value'],
                                        unit=send_stat['uid'])
-            print(r.bits if reg_type < 2 else r.registers)
+            print(f'{r.bits[:send_stat["value"]] if reg_type < 2 else r.registers} '
+                  f'=> processing time: {datetime.now()-s}')
         else:
             if reg_type < 2:
                 r = call_func[1][reg_type](address=send_stat['addr'],
@@ -149,7 +150,8 @@ def master_service():
                 r = call_func[1][reg_type](address=send_stat['addr'],
                                            values=send_stat['value'],
                                            unit=send_stat['uid'])
-            print(r)
+
+            print(f'{r} => processing time: {datetime.now()-s}')
         print()
 
 

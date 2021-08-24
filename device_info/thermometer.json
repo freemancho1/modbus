@@ -1,5 +1,6 @@
 {
   "device_driver": "thermometer",
+  "generation_interval": 1,
   "coil": {
     "start_addr": 0,
     "end_addr": 9999

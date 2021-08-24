@@ -542,8 +542,6 @@ class CommonDriver:
 
         self._show_console()
 
-        # self.log.debug(f'processing time: {datetime.now()-curr_time}')
-
 
 class GenerationData(threading.Thread):
 
