@@ -11,7 +11,27 @@
   },
   "input_register": {
     "start_addr": 20000,
-    "end_addr": 29999
+    "end_addr": 29999,
+    "data": [
+      {
+        "name": "temperature",
+        "addr": 30010,
+        "default": [0,0,0],
+        "interval": 5,
+        "min": [0, -50,0],
+        "max": [1, 50,999],
+        "error_rate": 10
+      },
+      {
+        "name": "humidity",
+        "addr": 30020,
+        "default": [0,0],
+        "interval": 3,
+        "min": [0,0],
+        "max": [99,99],
+        "error_rate": 10
+      }
+    ]
   },
   "holding_register": {
     "start_addr": 30000,

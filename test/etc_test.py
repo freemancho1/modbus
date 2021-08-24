@@ -2,10 +2,15 @@ import time
 from datetime import datetime, timedelta
 from random import randint
 
+class MyClass:
 
-m_list = [[1, 10], [11, 20], [21, 30], [31, 40]]
-a = 11
+    aa = 10
+    bb = 20
 
-idx = [i for i in range(len(m_list)) if m_list[i][0] <= a <= m_list[i][1]]
+    def __init__(self):
+        self.aa = 110
+        self.bb = 120
 
-print(f'idx={idx}, len(idx)={len(idx)}, len(m_list)={len(m_list)}')
+
+my_class = MyClass
+print(my_class.bb)

@@ -442,9 +442,10 @@ class CommonDriver:
         def_val = data.get('default')
         loop_cnt = 1 if isinstance(def_val, int) else len(def_val)
         for i in range(loop_cnt):
-            word = randint(min_val, max_val)
+            (_min, _max) = (min_val, max_val) if loop_cnt == 1 else (min_val[i], max_val[i])
+            word = randint(_min, _max)
             if random() > (100-data['error_rate'])/100.:
-                word += max_val
+                word += _max
             self.DataBank[uid].set_words(data['addr']+i-self.ws_addr, [word])
 
     def _gen_words(self, data, uid):

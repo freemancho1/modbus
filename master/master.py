@@ -68,11 +68,12 @@ def input_parameters():
         raise Exception(f'설정파일을 처리하는 동안 에러가 발생했습니다.\n{str(e)}')
 
 def help_msg():
-    print('** Usage: [1:read/2:write], [count/value(s)], unit-id, \n'
-          ' - ex1) 1, 10, 0            => read, count=10, unit-id=0 \n'
-          ' - ex2) 2, 20, 1            => write, value=20, unit-id=1 \n'
-          ' - ex3) 2, [10, 20, 30], 2  => write, values=[10,20,30], unit-id=2 \n'
-          ' - ex4) 2, [True]*3         => write, values=[True, True, True], unit-id=0')
+    print('** Usage: [1:read/2:write], address, [count/value(s)], unit-id, \n'
+          ' - ex1) 1, 100, 10, 0              => read, address=100, count=10, unit-id=0 \n'
+          ' - ex2) 2, 40011, 20, 1            => write, address=40011, value=20, unit-id=1 \n'
+          ' - ex3) 2, 40100, [10, 20, 30], 2  => write, address=40100, values=[10,20,30], unit-id=2 \n'
+          ' - ex4) 2, 15, [True]*3            => write, address=15, values=[True, True, True], unit-id=0 \n\n'
+          '** Usage: [clear/help]\n')
 
 def master_service():
 
@@ -91,7 +92,11 @@ def master_service():
 
         if len(in_data) == 0: continue
         if in_data[:1] not in ['1', '2']:
-            help_msg()
+            if in_data == 'clear':
+                cmd = 'cls' if os.name in ('nt', 'dos') else 'clear'
+                os.system(cmd)
+            else:
+                help_msg()
             continue
 
         in_data = in_data.replace('True', '1').replace('False', '0')
