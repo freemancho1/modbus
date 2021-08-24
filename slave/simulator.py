@@ -18,6 +18,6 @@ try:
     modbus_simulator = ModbusSlaveEngine(sys_params)
     modbus_simulator.start()
 except:
+    if isinstance(modbus_simulator, ModbusSlaveEngine):
+        modbus_simulator.stop()
     sys.exit()
-finally:
-    modbus_simulator.stop()
