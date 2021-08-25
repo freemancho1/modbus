@@ -31,6 +31,8 @@ class ModbusSlaveEngine:
         driver = __import__(driver_name, fromlist=[driver_name])
         driver = driver.ModbusDriver(self.device_info, self.product_info, log)
 
+        self.driver = driver
+
     @property
     def _is_run(self):
         return self._running

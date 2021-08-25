@@ -26,6 +26,7 @@ class CommonDriver:
 
         self.timer = {}
         self._sys_data = {}
+        self.disp = True
 
         self.tid, self.pid, self.len, self.uid = 0, 0, 0, 0
         self.fc = 0
@@ -45,6 +46,7 @@ class CommonDriver:
                                     self.product_info['generation_interval'])
         gd_process.daemon = True
         gd_process.start()
+
 
     def init_transaction(self):
         self.tid, self.pid, self.len, self.uid = 0, 0, 0, 0
@@ -459,6 +461,9 @@ class CommonDriver:
                 pass
 
     def _show_console(self):
+
+        if not self.disp: return
+
         cmd = 'cls' if os.name in ('nt', 'dos') else 'clear'
         os.system(cmd)
 
@@ -555,5 +560,3 @@ class GenerationData(threading.Thread):
         while True:
             self.Run()
             time.sleep(self.interval)
-
-
