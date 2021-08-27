@@ -1,0 +1,16 @@
+('-H', '--host', dest='host',
+    default='127.0.0.1', help='디바이스 IP 정보, 필수항목.')
+('-P', '--port', dest='port',
+    default='', help='디바이스 PORT 정보, 필수항목.')
+('-I', '--device-info', dest='dev_info',
+    default='', help='디바이스 설정파일 정보. 필수항목.')
+('-U', '--unit-count', dest='unit_cnt',
+    default=1, type=int,
+    help='디바이스 유닛 갯 수, 필수항목(기본값: 1).')
+('-N', '--no-display', dest='no_disp',
+    default=True, action='store_false',
+    help='디바이스 정보 출력 여부 설정, 기본값 \'표시하지 않음\'')
+('-L', '--log-level', dest='log_level',
+    default=LOG_CONF.DEFAULT_LEVEL, type=str,
+    help=f'''로그 출력 레벨을 설정한다. 기본값은 '{LOG_CONF.DEFAULT_LEVEL}'.
+             debug, info, warning, error, critical을 사용할 수 있음.''')

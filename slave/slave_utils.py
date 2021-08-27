@@ -2,6 +2,70 @@ import struct
 from threading import Lock
 
 
+class DevInfo:
+
+    def __init__(self):
+        self.host           = ''
+        self.port           = ''
+        self.type           = ''    # device type
+        self.unit_cnt       = 0
+        self.no_disp        = None
+        self.log_level      = ''
+        self.drv            = ''
+        self.itv            = 0     # interval
+
+        # 2차원 배열 - 0:co, 1:di, 2:ir, 3:hr
+        self.addr           = []    # 0:start, 1:end, 2:base
+        self.w_addr         = 0     # device 별 레지스터 초기 주소설정값
+        self.data           = []    # {}
+
+    def __str__(self):
+        return f'{self.type}:{self.host}:{self.port}[{self.unit_cnt}], ' \
+               f'no_disp={self.no_disp}, log_level={self.log_level}, ' \
+               f'interval={self.itv}\ndrive path: {self.drv_path}\n' \
+               f'addr: {self.addr}\ndata:\n{self.data}'
+
+    def get_title(self):
+        return f'{self.type}:{self.host}:{self.port}'
+
+
+class TranInfo:
+
+    def __init__(self):
+        self.tid            = 0
+        self.pid            = 0
+        self.len            = 0
+        self.uid            = 0
+        self.fc             = 0
+        self.type           = 0     # data(coil, registers) type
+        self.addr           = 0
+        self.m_addr          = 0     # memory address
+        self.cnt            = 0
+        self.b_cnt          = 0     # byte count
+        self.value          = 0
+        self.es             = 0x00  # exp_status
+        self.r_body         = b''
+        self.s_body         = b''
+
+    def init(self):
+        self.tid            = 0
+        self.pid            = 0
+        self.len            = 0
+        self.uid            = 0
+        self.fc             = 0
+        self.type           = 0     # data(coil, registers) type
+        self.addr           = 0
+        self._addr          = 0     # memory address
+        self.cnt            = 0
+        self.b_cnt          = 0     # byte count
+        self.value          = 0
+        self.es             = 0x00  # exp_status
+        self.r_head         = b''
+        self.r_body         = b''
+        self.s_head         = b''
+        self.s_body         = b''
+
+
 class DataBank:
 
     def __init__(self):
