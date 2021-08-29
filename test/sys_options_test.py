@@ -1,7 +1,7 @@
 import os, sys
 sys.path.append(os.path.abspath(__file__+'/../..'))
 
-from utils.sys_options import SysOptions
+from slave.slave_options import SysOptions
 
 
 if __name__ == '__main__':

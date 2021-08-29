@@ -18,13 +18,13 @@
     "data": [
       {
         "name": "status",
-        "addr": 10011,
+        "addr": 10020,
         "default": 1,
         "interval": 10
       },
       {
         "name": "color",
-        "addr": 10015,
+        "addr": 10025,
         "default": [1,0,0]
       }
     ]
@@ -35,7 +35,7 @@
     "data": [
       {
         "name": "curr_time",
-        "addr": 30100,
+        "addr": 30000,
         "default": [12,0,0],
         "interval": 1,
         "type": "time",
@@ -45,13 +45,13 @@
       },
       {
         "name": "chg_time",
-        "addr": 30200,
+        "addr": 30005,
         "default": [12,0,0],
         "type": "time"
       },
       {
         "name": "input_voltage",
-        "addr": 30900,
+        "addr": 30009,
         "default": 10,
         "interval": 2,
         "min": 5,
@@ -66,7 +66,7 @@
     "data": [
       {
         "name": "set_time",
-        "addr": 40100,
+        "addr": 40020,
         "default": [12,0,0],
         "type": "time",
         "min": [1,0,0],

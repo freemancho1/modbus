@@ -1,5 +1,8 @@
 import time
 import socket
+import importlib
 
-_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-print(type(_socket))
+
+print('111111111')
+_drv_module = importlib.import_module('drivers.led_timer')
+print('22222')

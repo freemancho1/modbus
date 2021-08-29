@@ -1,0 +1,16 @@
+{
+  "dev1": {
+    "type": "led_timer",
+    "host": "127.0.0.1",
+    "port_start": 40000,
+    "port_cnt": 2000,
+    "unit_cnt": 1
+  },
+  "dev2": {
+    "type": "thermometer",
+    "host": "127.0.0.1",
+    "port_start": 44000,
+    "port_cnt": 200,
+    "unit_cnt": 5
+  }
+}

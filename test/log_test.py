@@ -2,9 +2,8 @@ import os, sys
 sys.path.append(os.path.abspath(__file__+'/../..'))
 
 from utils.logs.logger import Logger
-from utils.sys_options import InspectionParameters
+from slave.slave_options import InspectionParameters
 from log_test_sub import log_sub
-import time
 
 log = Logger()
 

@@ -18,11 +18,13 @@ class DevInfo:
         self.addr           = []    # 0:start, 1:end, 2:base
         self.w_addr         = 0     # device 별 레지스터 초기 주소설정값
         self.data           = []    # {}
+        self.b_cnt          = 0     # CO/DI address 갯 수
+        self.w_cnt          = 0     # IR/HR address 갯 수
 
     def __str__(self):
         return f'{self.type}:{self.host}:{self.port}[{self.unit_cnt}], ' \
                f'no_disp={self.no_disp}, log_level={self.log_level}, ' \
-               f'interval={self.itv}\ndrive path: {self.drv_path}\n' \
+               f'interval={self.itv}, driver: {self.drv}\n' \
                f'addr: {self.addr}\ndata:\n{self.data}'
 
     def get_title(self):
@@ -39,11 +41,12 @@ class TranInfo:
         self.fc             = 0
         self.type           = 0     # data(coil, registers) type
         self.addr           = 0
-        self.m_addr          = 0     # memory address
+        self.m_addr         = 0     # memory address
         self.cnt            = 0
         self.b_cnt          = 0     # byte count
         self.value          = 0
         self.es             = 0x00  # exp_status
+        self.em             = ''    # message with exp_status
         self.r_body         = b''
         self.s_body         = b''
 
@@ -55,24 +58,23 @@ class TranInfo:
         self.fc             = 0
         self.type           = 0     # data(coil, registers) type
         self.addr           = 0
-        self._addr          = 0     # memory address
+        self.m_addr         = 0     # memory address
         self.cnt            = 0
         self.b_cnt          = 0     # byte count
         self.value          = 0
         self.es             = 0x00  # exp_status
-        self.r_head         = b''
+        self.em             = ''    # message with exp_status
         self.r_body         = b''
-        self.s_head         = b''
         self.s_body         = b''
 
 
 class DataBank:
 
-    def __init__(self):
+    def __init__(self, b_cnt, w_cnt):
         self.bits_lock = Lock()
-        self.bits = [False] * 20000   # 00000~09999(Coils), 10000~19999(Discrete Inputs)
+        self.bits = [False] * b_cnt
         self.words_lock = Lock()
-        self.words = [0] * 20000      # 00000~09999(Input Register), 10000~19999(Holding Register)
+        self.words = [0] * w_cnt
 
     def get_bits(self, address, number=1):
         with self.bits_lock:

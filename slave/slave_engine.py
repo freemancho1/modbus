@@ -1,10 +1,11 @@
+import os
 import socket
+import importlib
 from datetime import datetime
-from threading import Thread
 from socketserver import BaseRequestHandler, ThreadingTCPServer
 
-from slave import slave_constants as CONST
-from utils import sys_config as SYS_CONF
+import slave_constants as CONST
+import slave_config as SYS_CONF
 from utils.logs.logger import Logger
 log = Logger()
 
@@ -21,11 +22,9 @@ class ModbusSlaveEngine:
         log.set_config(self.di.get_title(), self.di.log_level, False)
 
         global driver
-        driver_name = f'{SYS_CONF.DRIVER_PATH.replace("/", ".")}.{self.di.drv}'
-        driver = __import__(driver_name, fromlist=[driver_name])
-        driver = driver.ModbusDriver(self.di, log)
-
-        self.driver = driver
+        _drv_name = f'{SYS_CONF.DRIVER_PATH.replace("/", ".")}.{self.di.drv}'
+        _drv_module = importlib.import_module(_drv_name)
+        driver = _drv_module.ModbusDriver(self.di, log)
 
     @property
     def _is_run(self):
@@ -53,7 +52,7 @@ class ModbusSlaveEngine:
             self._service.socket.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
             self._service.server_bind()
             self._service.server_activate()
-            log.info(f'{self.di.get_title} device setup complete..')
+            log.info(f'{self.di.get_title()} device setup complete..')
             self._service_manager()
         else:
             log.warning('This service is already running.')

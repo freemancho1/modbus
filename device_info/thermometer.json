@@ -1,5 +1,5 @@
 {
-  "device_driver": "thermometer",
+  "device_driver": "default",
   "generation_interval": 1,
   "coil": {
     "start_addr": 0,
@@ -10,12 +10,12 @@
     "end_addr": 19999
   },
   "input_register": {
-    "start_addr": 20000,
-    "end_addr": 29999,
+    "start_addr": 30000,
+    "end_addr": 39999,
     "data": [
       {
         "name": "temperature",
-        "addr": 30010,
+        "addr": 30000,
         "default": [0,0,0],
         "interval": 5,
         "min": [0, -50,0],
@@ -24,7 +24,7 @@
       },
       {
         "name": "humidity",
-        "addr": 30020,
+        "addr": 30005,
         "default": [0,0],
         "interval": 3,
         "min": [0,0],
@@ -34,7 +34,7 @@
     ]
   },
   "holding_register": {
-    "start_addr": 30000,
-    "end_addr": 39999
+    "start_addr": 40000,
+    "end_addr": 49999
   }
 }
